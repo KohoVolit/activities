@@ -1,0 +1,12 @@
+dev/
+dev/*
+smarty/templates_c
+smarty/templates_c/*
+*~lock*
+cache/
+*cache/
+__pycache__/
+*authentication.py
+inc/Parsedown.php
+fonts/
+update/settings.py
