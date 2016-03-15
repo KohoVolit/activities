@@ -35,8 +35,6 @@ attrs = {
 }
 for row in poslanec:
     oid = row[1].strip()
-    if oid == '6138':
-        raise(Exception)
     try:
         terms[row[4].strip()]
     except:
@@ -84,3 +82,20 @@ for row in poslanec:
             except:
                 persons[oid]['attributes']['address'] = {}
             persons[oid]['attributes']['address'][address[k]] = row[k].strip()
+
+for oid in persons:
+    person = persons[oid]
+    params = {'id': "eq.%s" % (person['id'])}
+    r = api.get("people", params)
+    rdata = r.json()
+    if len(rdata) == 0:
+        r = api.post("people",person)
+    else:
+        p = r.json()[0]
+        try:
+            z = p['attributes'].copy()
+            z.update(person['attributes'])
+            person['attributes'] = z
+        except:
+            nothing = None
+        r = api.patch("people", params, person)

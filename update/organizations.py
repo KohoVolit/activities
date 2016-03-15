@@ -151,3 +151,37 @@ for row in organy:
             except:
                 nothing = None
             r = api.patch("organizations", params, org)
+
+# governments
+for row in organy:
+    if row[2] == '5':   # electoral list
+        params = {
+            "id": "eq."+row[1].strip()
+        }
+
+        org = {
+            "name": row[4].strip(),
+            'classification': 'government',
+            'id': int(row[0].strip()),
+            'founding_date': scrapeutils.cs2iso(row[6].strip()),
+            'attributes': {
+                "abbreviation": row[3].strip()
+            }
+        }
+        if (row[7].strip() != ''):
+            org["dissolution_date"] = scrapeutils.cs2iso(row[7].strip())
+
+        params = {'id': "eq.%s" % (org['id'])}
+        r = api.get("organizations", params)
+        rdata = r.json()
+        if len(rdata) == 0:
+            r = api.post("organizations",org)
+        else:
+            o = r.json()[0]
+            try:
+                z = o['attributes'].copy()
+                z.update(org['attributes'])
+                org['attributes'] = z
+            except:
+                nothing = None
+            r = api.patch("organizations", params, org)

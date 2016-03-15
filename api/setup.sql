@@ -420,7 +420,7 @@ create table if not exists
         organization_id integer,
         start_date  date not null,
         end_date    date,
-        constraint memberships_pkey primary key (person_id,organization_id),
+        constraint memberships_pkey primary key (person_id,organization_id,start_date),
         CONSTRAINT memberships_person_id_fkey FOREIGN KEY (person_id)
             REFERENCES public.people (id) MATCH SIMPLE
             ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -435,8 +435,9 @@ create table if not exists
         classification   text not null,
         name   text,
         start_date  timestamp with time zone,
+        source_code text,
         attributes jsonb,
-        constraint activities_pkey unique (classification, name, start_date)
+        constraint activities_pkey unique (classification, source_code)
     );
 
 create table if not exists
@@ -464,6 +465,21 @@ CREATE OR REPLACE VIEW public.people_in_organizations AS
     LEFT JOIN organizations as torganizations
     ON tmemberships.organization_id = torganizations.id
 
+CREATE OR REPLACE VIEW public.people_in_political_groups AS
+    SELECT tpeople.id,
+       tpeople.family_name,
+       tpeople.given_name,
+       tpeople.attributes,
+       torganizations.id AS organization_id,
+       torganizations.name AS organization_name,
+       torganizations.attributes AS organization_attributes,
+       tmemberships.start_date,
+       tmemberships.end_date
+      FROM people tpeople
+        LEFT JOIN memberships tmemberships ON tpeople.id = tmemberships.person_id
+        LEFT JOIN organizations torganizations ON tmemberships.organization_id = torganizations.id
+     WHERE torganizations.classification = 'political group'::text;
+
 -- Permissions
 --
 -- On top of the authenticator and anon access granted in the previous example, blogs have an author role with extra permissions.
@@ -481,7 +497,7 @@ grant select, insert, update, delete
 grant select
     on all tables in schema public to anon;
 
--- grant usage, select on sequence posts_id_seq, comments_id_seq to author;
+grant usage, select on sequence activities_id_seq to author;
 grant usage on schema public, basic_auth to anon, author;
 
 -- Finally we need to modify the users view from the previous example. This is because all authors share a single db role. We could have chosen to assign a new role for every author (all inheriting from author) but we choose to tell them apart by their email addresses. The addition below prevents authors from seeing each others' info in the users view.
