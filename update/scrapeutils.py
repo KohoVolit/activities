@@ -59,13 +59,13 @@ def download(url, method='GET', data=None, url_extension='', zipped=False):
 	else:
 	    return r.text
 
-def zipfile2rows(zfile,filename,delimiter='|',encoding="cp1250"):
+def zipfile2rows(zfile,filename,delimiter='|',encoding="cp1250",errors='ignore'):
     """Extracts a csv file from zipfile and puts it into list by rows"""
     import io
     import csv
 
     items_file  = zfile.open(filename)
-    items_file  = io.TextIOWrapper(items_file,encoding=encoding)
+    items_file  = io.TextIOWrapper(items_file,encoding=encoding,errors='ignore')
     out = []
     for row in csv.reader(items_file,delimiter=delimiter):
         out.append(row)

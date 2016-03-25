@@ -100,8 +100,8 @@ for row in poradi:
     }
     # people
     activity['attributes']['people'] = {
-        "from_person_id": row[2],
-        "to_person_id": row[3]
+        "from_person_id": int(row[2]),
+        "to_person_id": int(row[3])
     }
     if li_dict[row[1]][2].strip() == 'P':
         activity['attributes']['people']['type'] = 'prime minister'
@@ -116,9 +116,9 @@ for row in poradi:
         people_ids.append(int(row[3]))
     # draw
     activity['attributes']['draw'] = {
-        "id": row[1],
+        "id": int(row[1]),
         "start_date": d,
-        "order": row[5],
+        "order": int(row[5]),
         "priority": row[6]
     }
     # session
