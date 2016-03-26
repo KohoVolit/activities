@@ -4,6 +4,7 @@
 import json
 
 import api
+import authentication
 import scrapeutils
 
 url = 'http://www.psp.cz/eknih/cdrom/opendata/poslanci.zip'

@@ -5,6 +5,7 @@ import json
 from operator import itemgetter
 
 import api
+import authentication
 import scrapeutils
 
 url = 'http://www.psp.cz/eknih/cdrom/opendata/tisky.zip'
