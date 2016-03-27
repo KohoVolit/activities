@@ -12,3 +12,4 @@ fonts/
 update/settings.py
 www/settings.json
 composer.*
+vendor/*

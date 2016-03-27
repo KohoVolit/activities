@@ -1,0 +1,113 @@
+code,text
+iso_lang,cs
+brand,Hlídame.je
+website_description,""
+website_keywords,"otevřenost"
+website_author,KohoVolit.eu
+og:image,http://hlidame.je/images/ep.jpg
+og:title,Hlídáme.je
+og:url,http://hlidame.je
+og:site_name,Hlídáme.je
+google_tracking_id,UA-68928818-1
+yandex_metrica_id,32395705
+fp_title,Aktivita v evropských institucích
+title,Aktivita v Evropském parlamentu
+footer,Hlídame.je
+explore,Zobrazit
+download,download,Uložit
+about,O projektu
+choose_show,Co zobrazit
+choose_filter,Změnit filtr
+close,Zavřít
+data,Data
+people,Poslanci
+groups,Skupiny
+countries,Státy
+parties,Strany
+filter,Filtr
+not_whole_term,Poslanec nebyl v EP celé období
+median,Medián za Sněmovnu
+count,Počet
+info,Info
+info_explanation_people,"<p><i class='fa fa-circle traffic-color-1'></i> více aktivit, <i class='fa fa-circle traffic-color-2'></i> středně aktivit, <i class='fa fa-circle traffic-color-3'></i> méně aktivit<p><i class='fa fa-lightbulb-o'></i> TIP: Data lze seřadit kliknutím na název aktivity"
+info_explanation,"<p><i class='fa fa-circle traffic-color-1'></i> více aktivit, <i class='fa fa-circle traffic-color-2'></i> středně aktivit, <i class='fa fa-circle traffic-color-3'></i> méně aktivit<p>Použita je průměrná hodnota za danou skupinu<p><i class='fa fa-lightbulb-o'></i> TIP: Data lze seřadit kliknutím na název aktivity"
+select_all,Přidat vše
+deselect_all,Odebrat vše
+cc-be,Belgie
+cc-bg,Bulharsko
+cc-cz,Česká republika
+cc-dk,Dánsko
+cc-de,Německo
+cc-ee,Estonsko
+cc-ie,Irsko
+cc-el,Řecko
+cc-es,Španělsko
+cc-fr,Francie
+cc-hr,Chorvatsko
+cc-it,Itálie
+cc-cy,Kypr
+cc-lv,Lotyšsko
+cc-lt,Litva
+cc-lu,Lucembursko
+cc-hu,Maďarsko
+cc-mt,Malta
+cc-nl,Nizozemí
+cc-at,Rakousko
+cc-pl,Polsko
+cc-pt,Portugalsko
+cc-ro,Rumunsko
+cc-si,Slovinsko
+cc-sk,Slovensko
+cc-fi,Finsko
+cc-se,Švédsko
+cc-uk,Velká Británie
+CRE,Vystoupení na plenárním zasedání
+MOTION,Návrhy usnesení
+REPORT,Zprávy předložené zpravodajem
+REPORT-SHADOW,Zprávy předložené stínovým zpravodajem
+COMPARL,Stanoviska předložená navrhovatelem
+COMPARL-SHADOW,Stanoviska předložená stínovým navrhovatelem
+WDECL,Písemná prohlášení
+QP,Parlamentní otázky
+description-CRE,"Vystoupení na plenárním zasedání udávající počet jednotlivých proslovů, které europoslanec za sledované období v EP učinil. Čas při rozpravách je rozdělován proporcionálně k počtu mandátů, které má v EP konkrétní politická frakce a národní delegace, jejichž je europoslanec členem."
+description-MOTION,"Kterýkoliv poslanec může předložit návrh usnesení, který nesmí obsahovat více než 200 slov, a to jen ve věci spadající do oblasti činnosti EU. Návrhy usnesení však obvykle předkládá politická skupina, výbor nebo alespoň 40 europoslanců."
+description-REPORT,"Zprávy předložené zpravodajem - počet zpráv, které vypracoval poslanec ve funkci zpravodaje. V EP bývají jednotlivé výbory vyzvány, aby připravily zprávu k legislativním i nelegislativním otázkám. Pro každou zprávu je z členů výboru, který zpracovává zprávu, vybrán zpravodaj (rapporteur), který za její vypracování zodpovídá. Zpravodaj se tedy podílí na procesu vypracování zprávy od samotného počátku, a je tedy důležitou postavou se značným vlivem na finální podobu zprávy."
+description-REPORT-SHADOW,"Zprávy předložené stínovým zpravodajem - zatímco zpravodaj formuluje postoj EP k dané otázce (v podobě zprávy), ostatní frakce, které nezískaly roli zpravodaje v dané otázce, mohou jmenovat svého tzv. stínového zpravodaje (shadow rapporteur), který komunikuje se zpravodajem, formuluje pozici frakce, jejímž je členem, k dané otázce a vypracovává pro svoji frakci podklady ke hlasování o jednotlivých pozměňovacích návrzích i o samotné zprávě."
+description-COMPARL,"Stanoviska předložená navrhovatelem - počet případů, kdy poslanec vypracoval stanovisko k legislativnímu či nelegislativnímu textu či otázce. Oba typy těchto textů jsou běžně postoupeny jednomu či více výborům na začátku postupu v EP. V případě legislativních otázek mají stanoviska formu pozměňovacích návrhů. Naopak v případě nelegislativních textů mají stanoviska podobu návrhů k některým částem textu."
+description-COMPARL-SHADOW,"Stanoviska předložená stínovým navrhovatelem. Stejně jako v případě zpráv vybírají politické skupiny tzv. stínového navrhovatele, který vypracovává stanovisko k dané problematice pro svoji politickou skupinu. Tento indikátor tedy vyjadřuje, kolik stanovisek europoslanec ve sledovaném období vypracoval v roli stínového navrhovatele."
+description-WDECL,"Písemné prohlášení je text o délce nejvýše 200 slov, který se týká věci či oblasti, která nezbytně musí spadat do působnosti Evropské unie. Písemné prohlášení může předložit nejméně 10 poslanců alespoň ze tří politických skupin jako text, k němuž svůj podpis mohou připojit další poslanci."
+description-QP,"Poslanci EP mohou pokládat parlamentní otázky Komisi, Radě EU či ostatním orgánům a institucím EU v písemné nebo ústní podobě. V rámci této studie uvádíme počet europoslancem předložených písemných otázek Evropské komisi nebo Radě EU."
+g-greens-efa,Skupina Zelených/Evropské svobodné aliance
+g-alde-adle,Skupina Aliance liberálů a demokratů pro Evropu
+g-gue-ngl,Skupina konfederace Evropské sjednocené levice a Severské zelené levice
+g-enf,Skupina Evropa národů a svobody
+g-ecr,Skupina Evropských konzervativců a reformistů
+g-epp,Poslanecký klub Evropské lidové strany (Křesťanských demokratů)
+g-efd,Skupina „Evropa Svobody a Přímé Demokracie“
+g-sd,Skupina progresivní aliance socialistů a demokratů v Evropském parlamentu
+g-ni,Nezařazení
+european_parliament,Evropský parlament
+council,Rada Evropské unie
+c_title,Účast ministrů na Radě EU
+configurations,Složení
+co-agrifish,Zemědělství a rybolov
+co-compet,Konkurenceschopnost
+co-ecofin,Hospodářství a finanční věci
+co-eycs,"Vzdělávání, mládež, kultura a sport"
+co-epsco,"Zaměstnanost, sociální politika, zdraví a ochrana spotřebitele"
+co-env,Životní prostředí
+co-fac,Zahraniční věci
+co-gac,Obecné záležitosti
+co-hsg,Hlavy států nebo vlád
+co-jha,Spravedlnost a vnitřní věci
+co-tte,"Doprava, telekomunikace a energetika"
+co-xx,XX
+average_minister_presence,Průměrná účast ministra
+since,Od
+until,Do
+time_filter,Časové omezení
+c_info_explanation,"<p><i class='fa fa-stop' style='color:darkgreen'></i> ministr byl přítomen, <i class='fa fa-stop' style='color:red'></i>  ministr nebyl přítomen"
+data_info,Data za 8.volební období (od roku 2014)
+last_updated,Poslední aktualizace
+methodology,Metodologie
+more_studies,Další materiály

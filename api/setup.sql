@@ -648,3 +648,220 @@ CREATE OR REPLACE VIEW number_of_current_bill_proposals_as_facp AS
     GRANT ALL ON TABLE public.number_of_current_bill_proposals_as_facp TO postgres;
     GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO anon;
     GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO author;
+
+
+-- Quantiles
+--DROP TYPE activity_quantile CASCADE;
+--DROP TYPE activity_classification CASCADE;
+CREATE TYPE activity_quantile AS (activity_classification text, quantile float, count integer);
+CREATE TYPE activity_classification AS (activity_classification text);
+
+-- DROP FUNCTION activity_quantiles();
+CREATE OR REPLACE FUNCTION activity_quantiles() RETURNS SETOF activity_quantile AS
+$BODY$
+    DECLARE
+    	a activity_quantile%rowtype;
+    	b activity_classification%rowtype;
+    	qs float[] := array[0.2,0.33,0.4,0.5,0.6,0.67,0.8,1];
+    	q float;
+    BEGIN
+
+        -- ordinary activities
+        FOREACH q IN ARRAY qs
+    	LOOP
+        FOR b IN
+            SELECT distinct(activity_classification) FROM current_activities_of_current_people
+    		LOOP
+    			FOR a IN
+    				SELECT * FROM
+    				(SELECT b.activity_classification::text as activity_classification, q::float as quantile, count::integer
+    				FROM number_of_current_activities_of_current_people
+    				WHERE activity_classification = b.activity_classification
+    				OFFSET round((SELECT count(*) FROM current_people)*q)
+    				LIMIT 1) as t1
+    				UNION ALL
+
+    				SELECT * FROM (
+    				SELECT b.activity_classification::text as activity_classification, q::float as quantile, 0::integer as count
+    				WHERE NOT EXISTS
+    					(
+    					SELECT count
+    					FROM number_of_current_activities_of_current_people
+    					WHERE activity_classification = b.activity_classification
+    					OFFSET round((SELECT count(*) FROM current_people)*q)
+    					)
+    				) as t2
+    			LOOP
+    				RETURN NEXT a;
+    			END LOOP;
+    		END LOOP;
+
+        -- bill proposal as first author
+    	FOR a IN
+    		SELECT * FROM(
+    		SELECT
+    			'bill proposal as first author'::text,
+    			q::float as quantile,
+    			count::integer
+    		FROM
+    			number_of_current_bill_proposals_as_facp
+    		OFFSET round((SELECT count(*) FROM current_people)*q)
+    		LIMIT 1) as t3
+    		UNION ALL
+    		SELECT * FROM (
+    				SELECT
+    				'bill proposal as first author'::text,
+    				q::float as quantile,
+    				0::integer
+    			WHERE NOT EXISTS (
+    				SELECT count
+    				FROM number_of_current_bill_proposals_as_facp
+    				OFFSET round((SELECT count(*) FROM current_people)*q)
+    			)
+    		) as t4
+    		LOOP
+    			RETURN NEXT a;
+    		END LOOP;
+    	END LOOP;
+    END
+$BODY$
+LANGUAGE plpgsql;
+
+ALTER FUNCTION public.activity_quantiles()
+  OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO postgres;
+GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO anon;
+GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO author;
+
+--SELECT * FROM activity_quantiles();
+
+-- DROP MATERIALIZED VIEW activity_quantiles;
+CREATE MATERIALIZED VIEW activity_quantiles AS
+	SELECT * FROM activity_quantiles()
+
+    ALTER TABLE public.activity_quantiles OWNER TO postgres;
+    GRANT ALL ON TABLE public.activity_quantiles TO postgres;
+    GRANT SELECT ON TABLE public.activity_quantiles TO anon;
+    GRANT SELECT ON TABLE public.activity_quantiles TO author;
+
+
+-- Activity with its quantiles for current MPs
+-- DROP VIEW current_people_activity_quantiles;
+CREATE OR REPLACE VIEW current_people_activity_quantiles AS
+    -- ordinary activities
+    SELECT
+    	n.person_id,
+    	qs.activity_classification,
+    	max(n.count) as count,
+    	min(qs.quantile) as quantile,
+    	max(qs.count) as quantile_count
+    FROM
+    activity_quantiles as qs
+    LEFT JOIN
+    number_of_current_activities_of_current_people as n
+    ON n.activity_classification = qs.activity_classification
+    WHERE n.count >= qs.count
+    --AND n.activity_classification = 'oral interpellation'
+    GROUP BY qs.activity_classification, person_id
+UNION ALL
+    -- bill proposal as first author
+    SELECT
+    	n.person_id,
+    	'bill proposal as first author',
+    	max(n.count) as count,
+    	min(qs.quantile) as quantile,
+    	max(qs.count) as quantile_count
+     FROM
+    activity_quantiles as qs
+    CROSS JOIN
+    number_of_current_bill_proposals_as_facp as n
+    WHERE qs.activity_classification = 'bill proposal as first author'
+    AND n.count >= qs.count
+    GROUP BY person_id
+    ORDER BY person_id;
+
+    ALTER TABLE public.current_people_activity_quantiles
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_people_activity_quantiles TO postgres;
+    GRANT SELECT ON TABLE public.current_people_activity_quantiles TO anon;
+    GRANT SELECT ON TABLE public.current_people_activity_quantiles TO author;
+
+-- Traffic lights
+-- DROP VIEW current_people_traffic_lights;
+CREATE OR REPLACE VIEW current_people_traffic_lights AS
+    SELECT
+    	cp.person_id,
+    	cacp.activity_classification,
+    	--pa.count,
+    	CASE
+    		WHEN LEAST(pa.quantile,1) <= 0.33 THEN 'green'
+    		WHEN LEAST(pa.quantile,1) <= 0.67 THEN 'yellow'
+    		ELSE 'red'
+    	END as traffic_light
+    FROM current_people as cp
+    CROSS JOIN
+    (SELECT distinct(activity_classification) FROM current_activities_of_current_people
+	UNION ALL
+	SELECT 'bill proposal as first author'::text WHERE NOT EXISTS (SELECT * FROM people WHERE 0=1)
+    )
+    as cacp
+    LEFT JOIN
+    current_people_activity_quantiles AS pa
+    ON cp.person_id = pa.person_id AND cacp.activity_classification = pa.activity_classification;
+
+    ALTER TABLE public.current_people_traffic_lights
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_people_traffic_lights TO postgres;
+    GRANT SELECT ON TABLE public.current_people_traffic_lights TO anon;
+    GRANT SELECT ON TABLE public.current_people_traffic_lights TO author;
+
+-- Stars
+-- DROP VIEW current_people_stars;
+CREATE OR REPLACE VIEW current_people_stars AS
+    SELECT
+    	cp.person_id,
+    	cacp.activity_classification,
+    	--pa.count,
+    	CASE
+    		WHEN LEAST(pa.quantile,1) <= 0.2 THEN 5
+    		WHEN LEAST(pa.quantile,1) <= 0.4 THEN 4
+            WHEN LEAST(pa.quantile,1) <= 0.6 THEN 3
+            WHEN LEAST(pa.quantile,1) <= 0.8 THEN 2
+    		ELSE 1
+    	END as stars
+    FROM current_people as cp
+    CROSS JOIN
+    (SELECT distinct(activity_classification) FROM current_activities_of_current_people
+	UNION ALL
+	SELECT 'bill proposal as first author'::text WHERE NOT EXISTS (SELECT * FROM people WHERE 0=1)
+    )
+    as cacp
+    LEFT JOIN
+    current_people_activity_quantiles AS pa
+    ON cp.person_id = pa.person_id AND cacp.activity_classification = pa.activity_classification;
+
+    ALTER TABLE public.current_people_stars
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_people_stars TO postgres;
+    GRANT SELECT ON TABLE public.current_people_stars TO anon;
+    GRANT SELECT ON TABLE public.current_people_stars TO author;
+
+-- function to refresh the view on every update of activities
+-- DROP FUNCTION refresh_current_people_activity_quantiles();
+CREATE OR REPLACE FUNCTION refresh_current_people_activity_quantiles() RETURNS TRIGGER AS
+	$$
+	BEGIN
+        REFRESH MATERIALIZED VIEW activity_quantiles;
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+    ALTER FUNCTION public.refresh_current_people_activity_quantiles()
+      OWNER TO postgres;
+    GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO postgres;
+    GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO anon;
+    GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO author;
+
+CREATE TRIGGER refresh_current_people_activity_quantiles
+	AFTER UPDATE ON activities
+	EXECUTE PROCEDURE refresh_current_people_activity_quantiles();
