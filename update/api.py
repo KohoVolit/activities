@@ -32,7 +32,7 @@ def get_one(resource, params = None, headers = HEADERS):
         params = params,
         headers = h
     )
-    if r.status_code == 200:
+    if r.status_code < 300:
         return r.json()
     else:
         return None

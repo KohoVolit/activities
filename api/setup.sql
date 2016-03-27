@@ -516,3 +516,135 @@ create or replace view users as
       actual.role <> 'author'
       or email = basic_auth.current_email()
   );
+
+ #    # # ###### #    #  ####
+ #    # # #      #    # #
+ #    # # #####  #    #  ####
+ #    # # #      # ## #      #
+  #  #  # #      ##  ## #    #
+   ##   # ###### #    #  ####
+--Views
+
+-- Current MPs
+-- DROP VIEW public.current_people;
+
+CREATE OR REPLACE VIEW public.current_people AS
+ SELECT p.id AS person_id,
+    p.family_name,
+    p.given_name,
+    p.attributes AS person_attributes,
+    m.start_date AS person_current_chamber_start_date,
+    round(date_part('epoch'::text, age(m.start_date) / 3600::double precision / 24::double precision)) AS duration_in_current_chamber,
+    o2.id AS political_group_id,
+    o2.name AS political_group_name,
+    m2.start_date AS person_current_politicial_group_start_date,
+    o2.attributes AS political_group_attributes,
+    o3.id AS region_id,
+    o3.name AS region_name,
+    o3.attributes AS region_attributes
+   FROM people p
+     LEFT JOIN memberships m ON p.id = m.person_id
+     LEFT JOIN organizations o ON m.organization_id = o.id
+     LEFT JOIN memberships m2 ON p.id = m2.person_id
+     LEFT JOIN organizations o2 ON m2.organization_id = o2.id
+     LEFT JOIN memberships m3 ON p.id = m3.person_id
+     LEFT JOIN organizations o3 ON m3.organization_id = o3.id
+  WHERE m.end_date IS NULL AND o.classification = 'chamber'::text AND m2.end_date IS NULL AND m3.end_date IS NULL AND o2.classification = 'political group'::text AND o3.classification = 'region'::text;
+
+ALTER TABLE public.current_people
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.current_people TO postgres;
+GRANT SELECT ON TABLE public.current_people TO anon;
+GRANT SELECT ON TABLE public.current_people TO author;
+
+-- Current political groups
+-- DROP VIEW public.current_political_groups;
+CREATE OR REPLACE VIEW public.current_political_groups AS
+    SELECT *
+    FROM organizations
+    WHERE classification='political group'
+    AND dissolution_date is NULL;
+
+    ALTER TABLE public.current_political_groups
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_political_groups TO postgres;
+    GRANT SELECT ON TABLE public.current_political_groups TO anon;
+    GRANT SELECT ON TABLE public.current_political_groups TO author;
+
+
+-- Activities of current MPs in current term
+-- Note: Bill proposals with more authors are there several times, one replication for each author
+-- DROP VIEW public.current_activities_of_current_people;
+CREATE OR REPLACE VIEW public.current_activities_of_current_people AS
+    SELECT
+    cp.person_id,
+    cp.family_name,
+    cp.given_name,
+    a.id as activity_id,
+    a.name as activity_name,
+    a.start_date as activity_start_date,
+    a.source_code as activity_source_code,
+    a.classification as activity_classification,
+    a.attributes as activity_attributes
+    FROM current_people as cp
+    LEFT JOIN activityships as s
+    ON cp.person_id = s.person_id
+    LEFT JOIN activities as a
+    ON a.id = s.activity_id
+    WHERE cp.person_current_chamber_start_date < a.start_date;
+
+    ALTER TABLE public.current_activities_of_current_people
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_activities_of_current_people TO postgres;
+    GRANT SELECT ON TABLE public.current_activities_of_current_people TO anon;
+    GRANT SELECT ON TABLE public.current_activities_of_current_people TO author;
+
+
+-- Bill proposals as first author of current MPs in current term
+--DROP VIEW public.current_bill_proposals_as_first_author_of_current_people;
+CREATE OR REPLACE VIEW public.current_bill_proposals_as_first_author_of_current_people AS
+    SELECT *
+    FROM current_activities_of_current_people
+    WHERE activity_classification = 'bill proposal'
+    AND activity_attributes->'people'->'person_ids'->>0 = cast(person_id as text);
+
+    ALTER TABLE public.current_bill_proposals_as_first_author_of_current_people
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.current_bill_proposals_as_first_author_of_current_people TO postgres;
+    GRANT SELECT ON TABLE public.current_bill_proposals_as_first_author_of_current_people TO anon;
+    GRANT SELECT ON TABLE public.current_bill_proposals_as_first_author_of_current_people TO author;
+
+-- Number of activities per person of current MPs in current term
+-- DROP VIEW public.number_of_current_activities_of_current_people;
+CREATE OR REPLACE VIEW public.number_of_current_activities_of_current_people AS
+    SELECT
+        person_id,
+        activity_classification,
+        count(*) as count
+    FROM current_activities_of_current_people as cacp
+    GROUP BY person_id, activity_classification
+    ORDER BY count DESC
+
+    ALTER TABLE public.number_of_current_activities_of_current_people
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.number_of_current_activities_of_current_people TO postgres;
+    GRANT SELECT ON TABLE public.number_of_current_activities_of_current_people TO anon;
+    GRANT SELECT ON TABLE public.number_of_current_activities_of_current_people TO author;
+
+-- Number of bill proposals as first author of current MPs in current ter
+-- DROP VIEW public.number_of_current_bill_proposals_as_facp;
+CREATE OR REPLACE VIEW number_of_current_bill_proposals_as_facp AS
+    SELECT
+        person_id,
+        count(*) as count
+    FROM current_activities_of_current_people as cacp
+    WHERE activity_classification = 'bill proposal'
+    AND activity_attributes->'people'->'person_ids'->>0 = cast(person_id as text)
+    GROUP BY person_id
+    ORDER BY count DESC
+
+    ALTER TABLE public.number_of_current_bill_proposals_as_facp
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.number_of_current_bill_proposals_as_facp TO postgres;
+    GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO anon;
+    GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO author;

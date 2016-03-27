@@ -41,3 +41,43 @@ for row in zarazeni:
             api.post("memberships",membership)
         else:
             api.patch("memberships",params=params,data=membership)
+
+
+# regions and electoral lists
+# note: they are in a differerent table
+unlfile = 'poslanec.unl'
+poslanec = scrapeutils.zipfile2rows(zfile,unlfile)
+
+for row in poslanec:
+    # regions
+    memb = api.get_one("memberships",
+        params={"person_id": "eq."+row[1],"organization_id": "eq."+row[4]}
+    )
+    membership = {
+        "person_id": int(row[1]),
+        "organization_id": int(row[2]),
+        "start_date": memb['start_date'],
+        "end_date": memb['end_date']
+    }
+    params = {"person_id":"eq."+row[1], "organization_id": "eq." + row[2], "start_date": "eq." + membership['start_date']}
+    r = api.get_one("memberships",params=params)
+    if not r:
+        api.post("memberships",membership)
+    else:
+        api.patch("memberships",params=params,data=membership)
+
+    # electoral lists
+    # note: some are missing
+    if not (int(row[3]) == 0):
+        membership = {
+            "person_id": int(row[1]),
+            "organization_id": int(row[3]),
+            "start_date": memb['start_date'],
+            "end_date": memb['end_date']
+        }
+        params = {"person_id":"eq."+row[1], "organization_id": "eq." + row[3], "start_date": "eq." + membership['start_date']}
+        r = api.get_one("memberships",params=params)
+        if not r:
+            api.post("memberships",membership)
+        else:
+            api.patch("memberships",params=params,data=membership)

@@ -6,7 +6,9 @@ smarty/templates_c/*
 cache/
 *cache/
 __pycache__/
-*authentication.py
+*authentication.*
 inc/Parsedown.php
 fonts/
 update/settings.py
+www/settings.json
+composer.*
