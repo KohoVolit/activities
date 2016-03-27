@@ -11,5 +11,7 @@ inc/Parsedown.php
 fonts/
 update/settings.py
 www/settings.json
-composer.*
-vendor/*
+composer.phar
+composer.lock
+www/vendor/*
+www/vendor/

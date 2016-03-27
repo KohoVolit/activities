@@ -1,0 +1,6 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^6.2",
+        "smarty/smarty": "^3.1"
+    }
+}
