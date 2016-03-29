@@ -702,7 +702,7 @@ CREATE OR REPLACE VIEW number_of_current_bill_proposals_as_facp AS
     WHERE activity_classification = 'bill proposal'
     AND activity_attributes->'people'->'person_ids'->>0 = cast(person_id as text)
     GROUP BY person_id
-    ORDER BY count DESC
+    ORDER BY count DESC;
 
     ALTER TABLE public.number_of_current_bill_proposals_as_facp
       OWNER TO postgres;
