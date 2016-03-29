@@ -16,9 +16,9 @@
 --        CONNECTION LIMIT = -1;
 
 
-#########################
+--#########################
 -- SWITCH TO activities
-#########################
+--#########################
 
 
 
@@ -392,7 +392,7 @@ grant execute on function
 
 
 -- ACTIVITIES
-SET timezone = 'UTC'
+SET timezone = 'UTC';
 
 -- as we will transfer ids from api.parldata.eu, we will use integer for id, otherwise would be bigserial:
 create table if not exists
@@ -463,7 +463,7 @@ CREATE OR REPLACE VIEW public.people_in_organizations AS
     LEFT JOIN memberships as tmemberships
     ON tpeople.id = tmemberships.person_id
     LEFT JOIN organizations as torganizations
-    ON tmemberships.organization_id = torganizations.id
+    ON tmemberships.organization_id = torganizations.id;
 
 CREATE OR REPLACE VIEW public.people_in_political_groups AS
     SELECT tpeople.id,
@@ -517,12 +517,12 @@ create or replace view users as
       or email = basic_auth.current_email()
   );
 
- #    # # ###### #    #  ####
- #    # # #      #    # #
- #    # # #####  #    #  ####
- #    # # #      # ## #      #
-  #  #  # #      ##  ## #    #
-   ##   # ###### #    #  ####
+-- #    # # ###### #    #  ####
+-- #    # # #      #    # #
+-- #    # # #####  #    #  ####
+-- #    # # #      # ## #      #
+--  #  #  # #      ##  ## #    #
+--   ##   # ###### #    #  ####
 --Views
 
 -- Current MPs
