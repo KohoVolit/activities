@@ -684,7 +684,7 @@ CREATE OR REPLACE VIEW public.number_of_current_activities_of_current_people AS
         count(*) as count
     FROM current_activities_of_current_people as cacp
     GROUP BY person_id, activity_classification
-    ORDER BY count DESC
+    ORDER BY count DESC;
 
     ALTER TABLE public.number_of_current_activities_of_current_people
       OWNER TO postgres;
