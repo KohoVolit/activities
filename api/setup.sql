@@ -7,13 +7,13 @@
 --     "LC_CTYPE": 'cs_CZ.UTF-8'
 -- }
 
-CREATE DATABASE activities
-  WITH OWNER = postgres
-       ENCODING = 'UTF8'
-       TABLESPACE = pg_default
-       LC_COLLATE = 'cs_CZ.UTF-8'
-       LC_CTYPE = 'cs_CZ.UTF-8'
-       CONNECTION LIMIT = -1;
+-- CREATE DATABASE activities
+--   WITH OWNER = postgres
+--        ENCODING = 'UTF8'
+--        TABLESPACE = pg_default
+--        LC_COLLATE = 'cs_CZ.UTF-8'
+--        LC_CTYPE = 'cs_CZ.UTF-8'
+--        CONNECTION LIMIT = -1;
 
 
 #########################
