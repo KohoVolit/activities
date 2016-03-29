@@ -399,6 +399,7 @@ grant execute on function
 SET timezone = 'UTC';
 
 -- as we will transfer ids from api.parldata.eu, we will use integer for id, otherwise would be bigserial:
+create table if not exists
 public.people
 (
   id integer NOT NULL,
