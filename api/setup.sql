@@ -312,6 +312,10 @@ grant anon to authenticator;
 
 grant usage on schema public, basic_auth to anon;
 
+-- On top of the authenticator and anon access granted in the previous example, blogs have an author role with extra permissions.
+create role author;
+grant author to authenticator;
+
 -- Finally add a public function people can use to sign up. You can hard code a default db role in it. It alters the underlying basic_auth.users so you can set whatever role you want without restriction.
 create or replace function
 signup(email text, pass text) returns void
@@ -395,63 +399,111 @@ grant execute on function
 SET timezone = 'UTC';
 
 -- as we will transfer ids from api.parldata.eu, we will use integer for id, otherwise would be bigserial:
-create table if not exists
-people (
-  id         integer primary key,
-  family_name   text not null,
-  given_name    text not null,
-  attributes    jsonb
+public.people
+(
+  id integer NOT NULL,
+  family_name text NOT NULL,
+  given_name text NOT NULL,
+  attributes jsonb,
+  CONSTRAINT people_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
 );
+ALTER TABLE public.people
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.people TO postgres;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.people TO author;
+GRANT SELECT ON TABLE public.people TO anon;
 
 -- as we will transfer ids from api.parldata.eu, we will use integer for id, otherwise would be bigserial:
 create table if not exists
-organizations (
-  id         integer primary key,
-  name   text not null,
-  classification    text not null,
-  founding_date date not null,
-  dissolution_date  date,
-  attributes jsonb
+public.organizations
+(
+  id integer NOT NULL,
+  name text NOT NULL,
+  classification text NOT NULL,
+  founding_date date NOT NULL,
+  dissolution_date date,
+  attributes jsonb,
+  CONSTRAINT organizations_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
 );
+ALTER TABLE public.organizations
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.organizations TO postgres;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.organizations TO author;
+GRANT SELECT ON TABLE public.organizations TO anon;
 
 create table if not exists
-    memberships (
-        person_id   integer,
-        organization_id integer,
-        start_date  date not null,
-        end_date    date,
-        constraint memberships_pkey primary key (person_id,organization_id,start_date),
-        CONSTRAINT memberships_person_id_fkey FOREIGN KEY (person_id)
-            REFERENCES public.people (id) MATCH SIMPLE
-            ON UPDATE NO ACTION ON DELETE NO ACTION,
-        CONSTRAINT memberships_organization_id_fkey FOREIGN KEY (organization_id)
-            REFERENCES public.organizations (id) MATCH SIMPLE
-            ON UPDATE NO ACTION ON DELETE NO ACTION
-    );
+public.memberships
+(
+  person_id integer NOT NULL,
+  organization_id integer NOT NULL,
+  start_date timestamp without time zone NOT NULL,
+  end_date timestamp without time zone,
+  CONSTRAINT memberships_pkey PRIMARY KEY (person_id, organization_id, start_date),
+  CONSTRAINT memberships_organization_id_fkey FOREIGN KEY (organization_id)
+      REFERENCES public.organizations (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT memberships_person_id_fkey FOREIGN KEY (person_id)
+      REFERENCES public.people (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.memberships
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.memberships TO postgres;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.memberships TO author;
+GRANT SELECT ON TABLE public.memberships TO anon;
+
 
 create table if not exists
-    activities (
-        id  bigserial primary key,
-        classification   text not null,
-        name   text,
-        start_date  timestamp with time zone,
-        source_code text,
-        attributes jsonb,
-        constraint activities_pkey unique (classification, source_code)
-    );
+public.activities
+(
+  id bigint NOT NULL DEFAULT nextval('activities_id_seq'::regclass),
+  classification text NOT NULL,
+  name text,
+  start_date timestamp with time zone,
+  source_code text,
+  attributes jsonb,
+  CONSTRAINT activities_pkey PRIMARY KEY (id),
+  CONSTRAINT activities0_pkey UNIQUE (classification, source_code)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.activities
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.activities TO postgres;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.activities TO author;
+GRANT SELECT ON TABLE public.activities TO anon;
 
 create table if not exists
-    activityships (
-        person_id   integer not null,
-        activity_id integer not null,
-        constraint activityships_pkey primary key (person_id,activity_id),
-        CONSTRAINT activityships_person_id_fkey FOREIGN KEY (person_id)
-            REFERENCES public.people (id) MATCH SIMPLE
-            ON UPDATE NO ACTION ON DELETE NO ACTION,
-        CONSTRAINT activityships_activities_id_fkey FOREIGN KEY (activity_id)
-            REFERENCES public.activities (id) MATCH SIMPLE
-            ON UPDATE NO ACTION ON DELETE NO ACTION
-    );
+public.activityships
+(
+  person_id integer NOT NULL,
+  activity_id integer NOT NULL,
+  CONSTRAINT activityships_pkey PRIMARY KEY (person_id, activity_id),
+  CONSTRAINT activityships_activities_id_fkey FOREIGN KEY (activity_id)
+      REFERENCES public.activities (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT activityships_person_id_fkey FOREIGN KEY (person_id)
+      REFERENCES public.people (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.activityships
+  OWNER TO postgres;
+GRANT ALL ON TABLE public.activityships TO postgres;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.activityships TO author;
+GRANT SELECT ON TABLE public.activityships TO anon;
 
 
 CREATE OR REPLACE VIEW public.people_in_organizations AS
@@ -482,9 +534,7 @@ CREATE OR REPLACE VIEW public.people_in_political_groups AS
 
 -- Permissions
 --
--- On top of the authenticator and anon access granted in the previous example, blogs have an author role with extra permissions.
-create role author;
-grant author to authenticator;
+
 
 -- authors can edit comments/posts
 grant select, insert, update, delete
@@ -863,5 +913,7 @@ CREATE OR REPLACE FUNCTION refresh_current_people_activity_quantiles() RETURNS T
     GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO author;
 
 CREATE TRIGGER refresh_current_people_activity_quantiles
-	AFTER UPDATE ON activities
-	EXECUTE PROCEDURE refresh_current_people_activity_quantiles();
+    AFTER UPDATE
+    ON public.activities
+    FOR EACH STATEMENT
+    EXECUTE PROCEDURE public.refresh_current_people_activity_quantiles();
