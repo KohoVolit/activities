@@ -462,6 +462,16 @@ GRANT ALL ON TABLE public.memberships TO postgres;
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.memberships TO author;
 GRANT SELECT ON TABLE public.memberships TO anon;
 
+CREATE SEQUENCE public.activities_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+ALTER TABLE public.activities_id_seq
+  OWNER TO postgres;
+GRANT ALL ON SEQUENCE public.activities_id_seq TO postgres;
+GRANT SELECT, USAGE ON SEQUENCE public.activities_id_seq TO author;
 
 create table if not exists
 public.activities
