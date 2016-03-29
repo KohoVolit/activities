@@ -72,7 +72,7 @@ def patch(resource, params = None, data = None, headers = HEADERS):
         data = json.dumps(data),
         headers = headers
     )
-    r.raise_for_status()
+    # r.raise_for_status()
     return r
 
 def delete(resource, params = None, headers = HEADERS):
