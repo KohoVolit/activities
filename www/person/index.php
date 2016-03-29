@@ -2,6 +2,8 @@
 
 $settings = json_decode(file_get_contents("../settings.json"));
 
+require '../vendor/autoload.php';
+
 $page = 'person';
 
 $acts = [
@@ -28,7 +30,7 @@ else {
 }
 
 //set up Smarty
-require($settings->smarty_path);
+//require($settings->smarty_path);
 $smarty = new Smarty();
 $smarty->setTemplateDir($settings->app_path . 'smarty/templates');
 $smarty->setCompileDir($settings->app_path . 'smarty/templates_c');
