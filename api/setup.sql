@@ -798,7 +798,7 @@ GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO author;
 
 -- DROP MATERIALIZED VIEW activity_quantiles;
 CREATE MATERIALIZED VIEW activity_quantiles AS
-	SELECT * FROM activity_quantiles()
+	SELECT * FROM activity_quantiles();
 
     ALTER TABLE public.activity_quantiles OWNER TO postgres;
     GRANT ALL ON TABLE public.activity_quantiles TO postgres;
