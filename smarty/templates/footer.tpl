@@ -1,5 +1,7 @@
 <footer class="footer">
     <p><strong>{$t['footer']}</strong>
+    <p>{$t['version']}
+
     {* <ul class="footer-links">
       <li><a href="http://osf.cz"><img src="{$app_url}images/osf.png" alt="OSF" /></a>
       <li>·

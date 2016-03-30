@@ -710,6 +710,27 @@ CREATE OR REPLACE VIEW number_of_current_bill_proposals_as_facp AS
     GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO anon;
     GRANT SELECT ON TABLE public.number_of_current_bill_proposals_as_facp TO author;
 
+-- Numbers of all activities for current MPs in current term
+CREATE OR REPLACE VIEW number_of_all_current_activities_of_current_people AS
+    SELECT
+    	person_id,
+    	activity_classification,
+    	count
+    FROM number_of_current_activities_of_current_people
+    UNION ALL
+    SELECT
+    	person_id,
+    	'bill proposal as first author',
+    	count
+    FROM number_of_current_bill_proposals_as_facp;
+
+    ALTER TABLE public.number_of_all_current_activities_of_current_people
+      OWNER TO postgres;
+    GRANT ALL ON TABLE public.number_of_all_current_activities_of_current_people TO postgres;
+    GRANT SELECT ON TABLE public.number_of_all_current_activities_of_current_people TO anon;
+    GRANT SELECT ON TABLE public.number_of_all_current_activities_of_current_people TO author;
+
+
 
 -- Quantiles
 --DROP TYPE activity_quantile CASCADE;
@@ -792,7 +813,7 @@ ALTER FUNCTION public.activity_quantiles()
   OWNER TO postgres;
 GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO postgres;
 GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO anon;
-GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO author;
+GRANT ALL ON FUNCTION public.activity_quantiles() TO author;
 
 --SELECT * FROM activity_quantiles();
 
@@ -800,10 +821,10 @@ GRANT EXECUTE ON FUNCTION public.activity_quantiles() TO author;
 CREATE MATERIALIZED VIEW activity_quantiles AS
 	SELECT * FROM activity_quantiles();
 
-    ALTER TABLE public.activity_quantiles OWNER TO postgres;
+    ALTER TABLE public.activity_quantiles OWNER TO author;
     GRANT ALL ON TABLE public.activity_quantiles TO postgres;
     GRANT SELECT ON TABLE public.activity_quantiles TO anon;
-    GRANT SELECT ON TABLE public.activity_quantiles TO author;
+    GRANT ALL ON TABLE public.activity_quantiles TO author;
 
 
 -- Activity with its quantiles for current MPs
@@ -909,22 +930,18 @@ CREATE OR REPLACE VIEW current_people_stars AS
 
 -- function to refresh the view on every update of activities
 -- DROP FUNCTION refresh_current_people_activity_quantiles();
-CREATE OR REPLACE FUNCTION refresh_current_people_activity_quantiles() RETURNS TRIGGER AS
-	$$
-	BEGIN
-        REFRESH MATERIALIZED VIEW activity_quantiles;
-	END;
-	$$
-	LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION refresh_current_people_activity_quantiles()
+RETURNS void AS
+ 	$$
+ 	BEGIN
+         REFRESH MATERIALIZED VIEW activity_quantiles;
+         RETURN;
+ 	END;
+ 	$$
+ 	LANGUAGE plpgsql;
 
     ALTER FUNCTION public.refresh_current_people_activity_quantiles()
       OWNER TO postgres;
     GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO postgres;
     GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO anon;
     GRANT EXECUTE ON FUNCTION public.refresh_current_people_activity_quantiles() TO author;
-
-CREATE TRIGGER refresh_current_people_activity_quantiles
-    AFTER UPDATE
-    ON public.activities
-    FOR EACH STATEMENT
-    EXECUTE PROCEDURE public.refresh_current_people_activity_quantiles();

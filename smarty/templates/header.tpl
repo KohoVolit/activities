@@ -13,8 +13,8 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse">
       <ul class="nav navbar-nav">
-        <li {if $page=='ep'}class='active'{/if}><a href="{$settings->app_url}ep">{$t['european_parliament']}</a></li>
-        <li {if $page=='council'}class='active'{/if}><a href="{$settings->app_url}council">{$t['council']}</a></li>
+        <li {if $page=='people'}class='active'{/if}><a href="../people">{$t['mps']}</a></li>
+        <li ><a href="https://github.com/KohoVolit/activities#api" target="_blank">API</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">

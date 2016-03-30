@@ -1,7 +1,7 @@
 <h3>
     <i class="fa fa-circle traffic-color-{$traffic_lights[$act]->traffic_light} fa-2x"></i>
 {*{$t[{$activity}]}*}
-{$act}
+{$t[$act]}
 <small>
 {$t['count']}
     {count($activities[$act])}

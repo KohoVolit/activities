@@ -15,7 +15,7 @@
 
     <div class="alert alert-info" role="alert">
       {$t['data_info']}<br>
-      {$t['last_updated']}: {$last_updated}
+      {* {$t['last_updated']}: {$last_updated} *}
     </div>
 
 {/block}
